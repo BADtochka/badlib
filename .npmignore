@@ -1,0 +1,14 @@
+# Development
+.github/
+*.config.js
+*.config.ts
+tsconfig.json
+
+# Tests
+__tests__/
+*.test.*
+*.spec.*
+
+# Locks
+bun.lock
+package-lock.json
