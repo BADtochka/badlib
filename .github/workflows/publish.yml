@@ -53,7 +53,7 @@ jobs:
           else
             npm install
           fi
-
+        
       - name: Build package
         run: npm run build --if-present
 
@@ -76,6 +76,12 @@ jobs:
           fi
           
           echo "Repository URL: $(npm pkg get repository.url)"
+          
+          # Коммитим изменения если они есть
+          if ! git diff --quiet package.json; then
+            git add package.json
+            git commit -m "chore: update repository field [skip ci]"
+          fi
 
       - name: Determine version type
         id: version_type
