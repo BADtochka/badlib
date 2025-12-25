@@ -4,39 +4,98 @@ on:
   push:
     branches:
       - main
+      - master
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
 
 permissions:
-  contents: write
-  id-token: write
+  id-token: write  # Обязательно для OIDC
+  contents: write  # Для создания коммита с новой версией
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: oven-sh/setup-bun@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
 
-      - run: bun install --frozen-lockfile
-
-      - name: Bump version (patch)
+      - name: Configure Git
         run: |
-          npm version patch -m "chore(release): v%s"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Build
-        run: bun run build
+      - name: Update npm to latest version
+        run: npm install -g npm@latest
+        
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run tests
+        run: npm test
+        
+      - name: Build package
+        run: npm run build --if-present
 
-      - name: Configure npm auth
+      - name: Determine version type
+        id: version_type
         run: |
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "type=${{ inputs.version_type }}" >> $GITHUB_OUTPUT
+          else
+            # Автоопределение типа версии по коммитам
+            COMMIT_MSG=$(git log -1 --pretty=%B)
+            if echo "$COMMIT_MSG" | grep -qiE "^(breaking|major):"; then
+              echo "type=major" >> $GITHUB_OUTPUT
+            elif echo "$COMMIT_MSG" | grep -qiE "^(feat|feature|minor):"; then
+              echo "type=minor" >> $GITHUB_OUTPUT
+            else
+              echo "type=patch" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Bump version
+        id: version
+        run: |
+          NEW_VERSION=$(npm version ${{ steps.version_type.outputs.type }} -m "chore: bump version to %s [skip ci]")
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "Bumped version to $NEW_VERSION"
+        
+      - name: Push changes
+        run: |
+          git push origin ${{ github.ref_name }}
+          git push origin ${{ steps.version.outputs.new_version }}
+        
+      - name: Publish to npm
+        run: npm publish
+        
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish
-        run: npm publish --access public
-
-      - name: Push version bump
-        run: git push --follow-tags
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.version.outputs.new_version }}
+          release_name: Release ${{ steps.version.outputs.new_version }}
+          body: |
+            Changes in this release:
+            ${{ github.event.head_commit.message }}
+          draft: false
+          prerelease: false
