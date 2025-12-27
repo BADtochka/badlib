@@ -24,7 +24,7 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -53,35 +53,9 @@ jobs:
           else
             npm install
           fi
-        
+
       - name: Build package
         run: npm run build --if-present
-
-      - name: Verify and fix repository field
-        run: |
-          REPO_URL="https://github.com/${{ github.repository }}"
-          
-          # Проверяем наличие поля repository в package.json
-          if ! grep -q '"repository"' package.json; then
-            echo "Adding repository field to package.json"
-            npm pkg set repository.type=git
-            npm pkg set repository.url="$REPO_URL"
-          else
-            # Обновляем URL если он неправильный
-            CURRENT_URL=$(npm pkg get repository.url | tr -d '"')
-            if [ "$CURRENT_URL" != "$REPO_URL" ] && [ "$CURRENT_URL" != "${REPO_URL}.git" ]; then
-              echo "Updating repository URL in package.json"
-              npm pkg set repository.url="$REPO_URL"
-            fi
-          fi
-          
-          echo "Repository URL: $(npm pkg get repository.url)"
-          
-          # Коммитим изменения если они есть
-          if ! git diff --quiet package.json; then
-            git add package.json
-            git commit -m "chore: update repository field [skip ci]"
-          fi
 
       - name: Determine version type
         id: version_type
@@ -89,7 +63,6 @@ jobs:
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "type=${{ inputs.version_type }}" >> $GITHUB_OUTPUT
           else
-            # Автоопределение типа версии по коммитам
             COMMIT_MSG=$(git log -1 --pretty=%B)
             if echo "$COMMIT_MSG" | grep -qiE "^(breaking|major):"; then
               echo "type=major" >> $GITHUB_OUTPUT
