@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
     /* Language & runtime */
-    "target": "ES2019",
+    "target": "esnext",
     "lib": [
       "ES2019",
       "DOM"
     ],
     "jsx": "react-jsx",
     /* Module system */
-    "module": "ESNext",
-    "moduleResolution": "node",
+    "module": "preserve",
+    "moduleResolution": "bundler",
     "moduleDetection": "force",
     "verbatimModuleSyntax": true,
     /* Output */
