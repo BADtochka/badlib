@@ -29,6 +29,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/BADtochka/badlib"
+    "url": "git+https://github.com/BADtochka/badlib.git"
   }
 }
