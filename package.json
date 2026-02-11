@@ -1,16 +1,17 @@
 {
   "name": "badlib",
   "version": "0.2.5",
-  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
+      "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
     "./functions": {
       "import": "./dist/functions/index.js",
+      "require": "./dist/functions/index.js",
       "types": "./dist/functions/index.d.ts"
     }
   },
