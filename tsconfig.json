@@ -1,39 +1,18 @@
 {
   "compilerOptions": {
-    /* Language & runtime */
-    "target": "esnext",
-    "lib": [
-      "ES2019",
-      "DOM"
-    ],
-    "jsx": "react-jsx",
-    /* Module system */
-    "module": "preserve",
-    "moduleResolution": "bundler",
-    "moduleDetection": "force",
-    "verbatimModuleSyntax": true,
-    /* Output */
+    "target": "ESNext",
+    "lib": ["ESNext"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
     "rootDir": "src",
     "outDir": "dist",
+
     "declaration": true,
-    "declarationMap": true,
     "sourceMap": true,
-    "emitDeclarationOnly": false,
-    "noEmit": false,
-    /* Interop & compatibility */
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    /* Type safety */
+
     "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
-    "noFallthroughCasesInSwitch": true,
-    /* Performance / DX */
-    "skipLibCheck": true,
-    /* Pathing */
-    "baseUrl": "./src"
+    "skipLibCheck": true
   },
-  "include": [
-    "src"
-  ],
+  "include": ["src"]
 }

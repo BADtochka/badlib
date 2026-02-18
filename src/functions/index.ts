@@ -1,5 +1,6 @@
-export * from './clamp';
-export * from './cn';
-export * from './delay';
-export * from './getObjectKeys';
-export * from './tryCatch';
+export * from "./clamp.js";
+export * from "./cn.js";
+export * from "./delay.js";
+export * from "./getObjectKeys.js";
+export * from "./tryCatch.js";
+
